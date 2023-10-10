@@ -1,7 +1,16 @@
 package org.selenium.test;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
-import org.selenium.pages.*;
+import org.selenium.pages.DraftsPage;
+import org.selenium.pages.EnterPasswordPage;
+import org.selenium.pages.InboxPage;
+import org.selenium.pages.MessageEditorPage;
+import org.selenium.pages.SentEmailAlertPage;
+import org.selenium.pages.SentEmailPage;
+import org.selenium.pages.SentPage;
+import org.selenium.pages.StartPage;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -33,29 +42,19 @@ public class MailServiceTests {
     public void SaveMailTest() {
         InboxPage inboxPage = getInboxMailPage();
         inboxPage = createAndSaveDraftOfSimpleEmail(inboxPage);
-        MailsGrid mailsGrid = inboxPage.openPage().switchToDraftsGrid();
-        MessageEditorPage messageEditorPage = mailsGrid.openPage().openFirstMailForEdit();
-        validateRecipientSubjectAndBody(messageEditorPage);
+        DraftsPage draftsPage = inboxPage.openPage().switchToDraftsPage();
+        MessageEditorPage messageEditorPage = draftsPage.openPage().openFirstMailForEdit();
+        validateRecipientSubjectAndBodyOfDraft(messageEditorPage);
     }
 
     @Test (description = "Send the email")
     public void SendMailTest() {
         InboxPage inboxPage = getInboxMailPage();
-        MailsGrid mailsGrid = inboxPage.openPage().switchToDraftsGrid();
-        MessageEditorPage messageEditorPage = mailsGrid.openPage().openFirstMailForEdit();
-        recipient = messageEditorPage.openPage().getRecipientOfMail();
-        subject = messageEditorPage.getSubjectOfMail();
-        body = messageEditorPage.getBodyTextOfMail();
-        SentEmailAlertPage sentEmailAlertPage = messageEditorPage.sendEmail();
-        mailsGrid = sentEmailAlertPage.openPage().closeSentEmailAlertPage();
-        messageEditorPage = mailsGrid.openPage().openFirstMailForEdit();
-        messageEditorPage.openPage();
-        validateSubjectAndBodyAreDifferent(messageEditorPage);
-        inboxPage = messageEditorPage.closeMessageEditorPage();
-        mailsGrid = inboxPage.openPage().switchToSentPage();
-        messageEditorPage = mailsGrid.openPage().openFirstMailForEdit();
-        messageEditorPage.openPage();
-        validateRecipientSubjectAndBody(messageEditorPage);
+        DraftsPage draftsPage = inboxPage.openPage().switchToDraftsPage();
+        draftsPage = sendTheFirstEmailFromDrafts(draftsPage);
+        MessageEditorPage messageEditorPage = draftsPage.openPage().openFirstMailForEdit();
+        validateSentEmailIsDisappearedInDraftPage(messageEditorPage);
+        validateEmailIsSent(messageEditorPage);
     }
 
     @AfterMethod (alwaysRun = true)
@@ -71,39 +70,55 @@ public class MailServiceTests {
         return enterPasswordPage.inputPasswordAndConfirm(PASSWORD);
     }
 
-
     private InboxPage createAndSaveDraftOfSimpleEmail(InboxPage inboxPage) {
         MessageEditorPage messageEditorPage = inboxPage.openPage()
                 .createNewMessage();
         messageEditorPage.openPage().fillAddressee(recipient).fillSubject(subject).fillBody(body).saveDraft();
-        inboxPage = messageEditorPage.closeMessageEditorPage();
+        inboxPage = messageEditorPage.closeMessageEditorPageAndSwitchToInboxPage();
         return inboxPage;
     }
 
+    private DraftsPage sendTheFirstEmailFromDrafts(DraftsPage draftsPage) {
+        MessageEditorPage messageEditorPage = draftsPage.openPage().openFirstMailForEdit();
+        subject = messageEditorPage.getSubjectOfDraft();
+        body = messageEditorPage.getBodyTextOfDraft();
+        SentEmailAlertPage sentEmailAlertPage = messageEditorPage.sendEmail();
+        draftsPage = sentEmailAlertPage.openPage().closeSentEmailAlertPage();
+        return draftsPage;
+    }
 
-    private void validateRecipientSubjectAndBody(MessageEditorPage messageEditorPage) {
-        Assert.assertEquals(messageEditorPage.getRecipientOfMail(), recipient,
+    private void validateRecipientSubjectAndBodyOfDraft(MessageEditorPage messageEditorPage) {
+        Assert.assertEquals(messageEditorPage.openPage().getRecipientOfDraft(), recipient,
                 "The recipient is not displayed or wrong");
-        Assert.assertEquals(messageEditorPage.getSubjectOfMail(), subject,
+        Assert.assertEquals(messageEditorPage.getSubjectOfDraft(), subject,
                 "The subject is not displayed or wrong");
-        Assert.assertTrue(messageEditorPage.getBodyTextOfMail().contains(body),
+        Assert.assertTrue(messageEditorPage.getBodyTextOfDraft().contains(body),
                 "The body is not displayed or wrong");
     }
 
-    private void validateSubjectAndBodyAreDifferent(MessageEditorPage messageEditorPage) {
-        Assert.assertNotEquals(messageEditorPage.getSubjectOfMail(), subject,
+    private void validateSentEmailIsDisappearedInDraftPage(MessageEditorPage messageEditorPage) {
+        messageEditorPage.openPage();
+        Assert.assertNotEquals(messageEditorPage.getSubjectOfDraft(), subject,
                 "The subject is equal");
-        Assert.assertFalse(messageEditorPage.getBodyTextOfMail().contains(body),
+        Assert.assertFalse(messageEditorPage.getBodyTextOfDraft().contains(body),
                 "The body is equal");
+    }
+
+    private void validateEmailIsSent(MessageEditorPage messageEditorPage) {
+        DraftsPage draftsPage = messageEditorPage.closeMessageEditorPageAndSwitchToDraftsPage();
+        SentPage sentPage = draftsPage.openPage().switchToSentPage();
+        SentEmailPage sentEmailPage = sentPage.openPage().openFirstMailForEdit();
+        Assert.assertEquals(sentEmailPage.openPage().getSubjectOfSentEmail(), subject,
+                "The subject is not displayed or wrong");
     }
 
     private String generateSubjectText() {
         String[] subjects = {
-                "Subject: Meeting Tomorrow",
-                "Subject: Important Update",
-                "Subject: Reminder",
-                "Subject: New Opportunity",
-                "Subject: Project Status"
+                "Subject: Meeting Tomorrow " + (int) (Math.random() * 100),
+                "Subject: Important Update " + (int) (Math.random() * 100),
+                "Subject: Reminder " + (int) (Math.random() * 100),
+                "Subject: New Opportunity " + (int) (Math.random() * 100),
+                "Subject: Project Status " + (int) (Math.random() * 100)
         };
         int randomIndex = (int) (Math.random() * subjects.length);
         return subjects[randomIndex];
@@ -111,11 +126,11 @@ public class MailServiceTests {
 
     private String generateBodyText() {
         String[] bodyTexts = {
-                "Body: Hello, I hope this message finds you well.",
-                "Body: Please find attached the requested documents.",
-                "Body: I wanted to update you on our progress.",
-                "Body: Thanks for your prompt response.",
-                "Body: Don't forget our meeting next week."
+                "Body: Hello, I hope this message finds you well." + (int) (Math.random() * 100),
+                "Body: Please find attached the requested documents." + (int) (Math.random() * 100),
+                "Body: I wanted to update you on our progress." + (int) (Math.random() * 100),
+                "Body: Thanks for your prompt response." + (int) (Math.random() * 100),
+                "Body: Don't forget our meeting next week."  + (int) (Math.random() * 100)
         };
         int randomIndex = (int) (Math.random() * bodyTexts.length);
         return bodyTexts[randomIndex];

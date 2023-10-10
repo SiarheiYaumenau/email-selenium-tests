@@ -4,10 +4,9 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-
 import java.time.Duration;
 
-public class DraftPage extends MailPage {
+public class DraftsPage extends MailPage {
     @FindBy (className = "ph-avatar-img")
     private WebElement accountIcon;
     @FindBy (className = "compose-button__txt")
@@ -21,34 +20,29 @@ public class DraftPage extends MailPage {
     @FindBy (css = "a.llc.llc_normal.llc_first.llc_new.llc_new-selection[href^='/drafts/']:first-of-type")
     private WebElement topMailsRow;
 
-    public DraftPage(WebDriver driver) {
+    public DraftsPage(WebDriver driver) {
         super(driver);
     }
 
-    public DraftPage openPage() {
+    public DraftsPage openPage() {
         new WebDriverWait(driver, Duration.ofSeconds(WAIT_TIMEOUT_SECONDS))
                 .until(ExpectedConditions.visibilityOf(inboxTab));
         new WebDriverWait(driver, Duration.ofSeconds(WAIT_TIMEOUT_SECONDS))
-                .until(ExpectedConditions.elementToBeClickable(topMailsRow));
+                .until(ExpectedConditions.visibilityOf(topMailsRow));
         return this;
     }
 
-    public String getAccountName() {
-        return accountIcon.getAttribute("alt");
+    public SentPage switchToSentPage() {
+        new WebDriverWait(driver, Duration.ofSeconds(WAIT_TIMEOUT_SECONDS))
+                .until(ExpectedConditions.elementToBeClickable(sentTab));
+        sentTab.click();
+        return new SentPage(driver);
     }
-
-    public MessageEditorPage createNewMessage() {
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(WAIT_TIMEOUT_SECONDS));
-        composeButton.click();
+    public MessageEditorPage openFirstMailForEdit() {
+        new WebDriverWait(driver, Duration.ofSeconds(WAIT_TIMEOUT_SECONDS))
+                .until(ExpectedConditions.elementToBeClickable(topMailsRow));
+        topMailsRow.click();
         return new MessageEditorPage(driver);
     }
-    public MailsGrid switchToDraftPage() {
-        draftTab.click();
-        return new MailsGrid(driver);
-    }
-    public MailsGrid switchToSentPage() {
-        sentTab.click();
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(WAIT_TIMEOUT_SECONDS));
-        return new MailsGrid(driver);
-    }
+
 }

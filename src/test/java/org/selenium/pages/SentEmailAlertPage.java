@@ -21,11 +21,11 @@ public class SentEmailAlertPage extends MailPage {
         return this;
     }
 
-    public MailsGrid closeSentEmailAlertPage() {
+    public DraftsPage closeSentEmailAlertPage() {
         new WebDriverWait(driver, Duration.ofSeconds(WAIT_TIMEOUT_SECONDS))
                 .until(ExpectedConditions.elementToBeClickable(closeIcon));
         closeIcon.click();
-        return new MailsGrid(driver);
+        return new DraftsPage(driver);
     }
 
 }

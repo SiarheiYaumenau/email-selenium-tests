@@ -14,7 +14,7 @@ public class MessageEditorPage extends MailPage {
     private WebElement sendButton;
     @FindBy (className = "container--H9L5q")
     private WebElement emptyRecipientsField;
-    @FindBy (className = "text--1tHKB")
+    @FindBy (css = "span.text--1tHKB")
     private WebElement firstRecipient;
     @FindBy (name = "Subject")
     private WebElement subjectField;
@@ -45,28 +45,46 @@ public class MessageEditorPage extends MailPage {
         return this;
     }
     public MessageEditorPage saveDraft() {
+        new WebDriverWait(driver, Duration.ofSeconds(WAIT_TIMEOUT_SECONDS))
+                .until(ExpectedConditions.elementToBeClickable(saveButton));
         saveButton.click();
         assert notificationSavedMessage != null : "Saved message alert does not exist";
         return this;
     }
-    public InboxPage closeMessageEditorPage() {
+    public DraftsPage closeMessageEditorPageAndSwitchToDraftsPage() {
+        new WebDriverWait(driver, Duration.ofSeconds(WAIT_TIMEOUT_SECONDS))
+                .until(ExpectedConditions.elementToBeClickable(cancelButton));
+        cancelButton.click();
+        return new DraftsPage(driver);
+    }
+    public InboxPage closeMessageEditorPageAndSwitchToInboxPage() {
+        new WebDriverWait(driver, Duration.ofSeconds(WAIT_TIMEOUT_SECONDS))
+                .until(ExpectedConditions.elementToBeClickable(cancelButton));
         cancelButton.click();
         return new InboxPage(driver);
     }
     public SentEmailAlertPage sendEmail() {
+        new WebDriverWait(driver, Duration.ofSeconds(WAIT_TIMEOUT_SECONDS))
+                .until(ExpectedConditions.elementToBeClickable(sendButton));
         sendButton.click();
         return new SentEmailAlertPage(driver);
     }
 
-    public String getRecipientOfMail() {
+    public String getRecipientOfDraft() {
+        new WebDriverWait(driver, Duration.ofSeconds(WAIT_TIMEOUT_SECONDS))
+                .until(ExpectedConditions.visibilityOf(firstRecipient));
         return firstRecipient.getText();
     }
 
-    public String getSubjectOfMail() {
+    public String getSubjectOfDraft() {
+        new WebDriverWait(driver, Duration.ofSeconds(WAIT_TIMEOUT_SECONDS))
+                .until(ExpectedConditions.visibilityOf(subjectField));
         return subjectField.getAttribute("value");
     }
 
-    public String getBodyTextOfMail() {
+    public String getBodyTextOfDraft() {
+        new WebDriverWait(driver, Duration.ofSeconds(WAIT_TIMEOUT_SECONDS))
+                .until(ExpectedConditions.visibilityOf(bodyField));
         return bodyField.getText();
     }
 }
