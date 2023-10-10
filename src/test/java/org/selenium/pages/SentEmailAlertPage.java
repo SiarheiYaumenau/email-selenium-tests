@@ -2,9 +2,8 @@ package org.selenium.pages;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import java.time.Duration;
+import org.selenium.auxiliary.Waits;
+
 public class SentEmailAlertPage extends MailPage {
     @FindBy (css = "a.layer__link[href^='/sent/']")
     private WebElement notificationSentMessage;
@@ -14,16 +13,13 @@ public class SentEmailAlertPage extends MailPage {
     public SentEmailAlertPage(WebDriver driver) {
         super(driver);
     }
-    public SentEmailAlertPage openPage() {
-        new WebDriverWait(driver, Duration.ofSeconds(WAIT_TIMEOUT_SECONDS))
-                .until(ExpectedConditions.visibilityOf(notificationSentMessage));
-        assert notificationSentMessage != null : "Sent message alert does not exist";
+    public SentEmailAlertPage waitLoadPage() {
+        new Waits(driver).waitForVisibilityOf(notificationSentMessage);
         return this;
     }
 
     public DraftsPage closeSentEmailAlertPage() {
-        new WebDriverWait(driver, Duration.ofSeconds(WAIT_TIMEOUT_SECONDS))
-                .until(ExpectedConditions.elementToBeClickable(closeIcon));
+        new Waits(driver).waitForElementToBeClickable(closeIcon);
         closeIcon.click();
         return new DraftsPage(driver);
     }

@@ -2,9 +2,8 @@ package org.selenium.pages;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import java.time.Duration;
+import org.selenium.auxiliary.Waits;
+
 public class EnterPasswordPage extends MailPage {
     @FindBy(name = "password")
     private WebElement passwordField;
@@ -14,11 +13,9 @@ public class EnterPasswordPage extends MailPage {
         super(driver);
     }
 
-    public EnterPasswordPage openPage() {
-        new WebDriverWait(driver, Duration.ofSeconds(WAIT_TIMEOUT_SECONDS))
-                .until(ExpectedConditions.visibilityOf(passwordField));
-        new WebDriverWait(driver, Duration.ofSeconds(WAIT_TIMEOUT_SECONDS))
-                .until(ExpectedConditions.elementToBeClickable(submitButton));
+    public EnterPasswordPage waitLoadPage() {
+        new Waits(driver).waitForVisibilityOf(passwordField);
+        new Waits(driver).waitForElementToBeClickable(submitButton);
         return this;
     }
 

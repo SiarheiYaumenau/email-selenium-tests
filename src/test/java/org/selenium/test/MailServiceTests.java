@@ -1,7 +1,5 @@
 package org.selenium.test;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.selenium.pages.DraftsPage;
 import org.selenium.pages.EnterPasswordPage;
@@ -11,30 +9,34 @@ import org.selenium.pages.SentEmailAlertPage;
 import org.selenium.pages.SentEmailPage;
 import org.selenium.pages.SentPage;
 import org.selenium.pages.StartPage;
-import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.testng.asserts.SoftAssert;
+import static org.testng.Assert.assertEquals;
 
 public class MailServiceTests {
-    private final String USER_NAME = "swebdriver";
-    private final String PASSWORD = "Support-1234";
-    private String recipient = "selenium.test@internet.ru";
-    private String subject = generateSubjectText();
-    private String body = generateBodyText();
+    private static final String USER_NAME = "swebdriver";
+    private static final String PASSWORD = "Support-1234";
+    private String recipient;
+    private String subject;
+    private String body;
     private WebDriver driver;
     @BeforeMethod (alwaysRun = true)
     public void browserSetup() {
         driver = new FirefoxDriver();
         driver.manage().window().maximize();
+        recipient = "selenium.test@internet.ru";
     }
 
     @Test (description = "Login to Mail")
     public void MailLoginTest() {
         InboxPage inboxPage = getInboxMailPage();
-        String accountName = inboxPage.openPage().getAccountName();
+        String accountName = inboxPage
+                .waitLoadPage()
+                .getAccountName();
         String expectedAccountName = USER_NAME + "@mail.ru";
-        Assert.assertEquals(accountName, expectedAccountName,
+        assertEquals(accountName, expectedAccountName,
                 "Inbox page is not displayed or the account name is wrong");
     }
 
@@ -42,17 +44,21 @@ public class MailServiceTests {
     public void SaveMailTest() {
         InboxPage inboxPage = getInboxMailPage();
         inboxPage = createAndSaveDraftOfSimpleEmail(inboxPage);
-        DraftsPage draftsPage = inboxPage.openPage().switchToDraftsPage();
-        MessageEditorPage messageEditorPage = draftsPage.openPage().openFirstMailForEdit();
+        MessageEditorPage messageEditorPage = inboxPage
+                .waitLoadPage()
+                .switchToDraftsPage()
+                .waitLoadPage()
+                .openFirstMailForEdit();
         validateRecipientSubjectAndBodyOfDraft(messageEditorPage);
     }
 
     @Test (description = "Send the email")
     public void SendMailTest() {
         InboxPage inboxPage = getInboxMailPage();
-        DraftsPage draftsPage = inboxPage.openPage().switchToDraftsPage();
-        draftsPage = sendTheFirstEmailFromDrafts(draftsPage);
-        MessageEditorPage messageEditorPage = draftsPage.openPage().openFirstMailForEdit();
+        DraftsPage draftsPage = inboxPage.waitLoadPage().switchToDraftsPage();
+        MessageEditorPage messageEditorPage = sendTheFirstEmailFromDrafts(draftsPage)
+                .waitLoadPage()
+                .openFirstMailForEdit();
         validateSentEmailIsDisappearedInDraftPage(messageEditorPage);
         validateEmailIsSent(messageEditorPage);
     }
@@ -65,50 +71,55 @@ public class MailServiceTests {
 
     private InboxPage getInboxMailPage() {
         EnterPasswordPage enterPasswordPage = new StartPage(driver)
-                .openPage().LoginAndConfirm(USER_NAME);
-        enterPasswordPage.openPage();
+                .waitLoadPage().LoginAndConfirm(USER_NAME);
+        enterPasswordPage.waitLoadPage();
         return enterPasswordPage.inputPasswordAndConfirm(PASSWORD);
     }
 
     private InboxPage createAndSaveDraftOfSimpleEmail(InboxPage inboxPage) {
-        MessageEditorPage messageEditorPage = inboxPage.openPage()
+        subject = generateSubjectText();
+        body = generateBodyText();
+        MessageEditorPage messageEditorPage = inboxPage.waitLoadPage()
                 .createNewMessage();
-        messageEditorPage.openPage().fillAddressee(recipient).fillSubject(subject).fillBody(body).saveDraft();
+        messageEditorPage.waitLoadPage().fillAddressee(recipient).fillSubject(subject).fillBody(body).saveDraft();
         inboxPage = messageEditorPage.closeMessageEditorPageAndSwitchToInboxPage();
         return inboxPage;
     }
 
     private DraftsPage sendTheFirstEmailFromDrafts(DraftsPage draftsPage) {
-        MessageEditorPage messageEditorPage = draftsPage.openPage().openFirstMailForEdit();
+        MessageEditorPage messageEditorPage = draftsPage.waitLoadPage().openFirstMailForEdit();
         subject = messageEditorPage.getSubjectOfDraft();
         body = messageEditorPage.getBodyTextOfDraft();
         SentEmailAlertPage sentEmailAlertPage = messageEditorPage.sendEmail();
-        draftsPage = sentEmailAlertPage.openPage().closeSentEmailAlertPage();
+        draftsPage = sentEmailAlertPage.waitLoadPage().closeSentEmailAlertPage();
         return draftsPage;
     }
 
     private void validateRecipientSubjectAndBodyOfDraft(MessageEditorPage messageEditorPage) {
-        Assert.assertEquals(messageEditorPage.openPage().getRecipientOfDraft(), recipient,
+        SoftAssert softAssert = new SoftAssert();
+        softAssert.assertEquals(messageEditorPage.waitLoadPage().getRecipientOfDraft(), recipient,
                 "The recipient is not displayed or wrong");
-        Assert.assertEquals(messageEditorPage.getSubjectOfDraft(), subject,
+        softAssert.assertEquals(messageEditorPage.getSubjectOfDraft(), subject,
                 "The subject is not displayed or wrong");
-        Assert.assertTrue(messageEditorPage.getBodyTextOfDraft().contains(body),
+        softAssert.assertTrue(messageEditorPage.getBodyTextOfDraft().contains(body),
                 "The body is not displayed or wrong");
+        softAssert.assertAll();
     }
 
     private void validateSentEmailIsDisappearedInDraftPage(MessageEditorPage messageEditorPage) {
-        messageEditorPage.openPage();
-        Assert.assertNotEquals(messageEditorPage.getSubjectOfDraft(), subject,
+        SoftAssert softAssert = new SoftAssert();
+        softAssert.assertNotEquals(messageEditorPage.waitLoadPage().getSubjectOfDraft(), subject,
                 "The subject is equal");
-        Assert.assertFalse(messageEditorPage.getBodyTextOfDraft().contains(body),
+        softAssert.assertFalse(messageEditorPage.getBodyTextOfDraft().contains(body),
                 "The body is equal");
+        softAssert.assertAll();
     }
 
     private void validateEmailIsSent(MessageEditorPage messageEditorPage) {
         DraftsPage draftsPage = messageEditorPage.closeMessageEditorPageAndSwitchToDraftsPage();
-        SentPage sentPage = draftsPage.openPage().switchToSentPage();
-        SentEmailPage sentEmailPage = sentPage.openPage().openFirstMailForEdit();
-        Assert.assertEquals(sentEmailPage.openPage().getSubjectOfSentEmail(), subject,
+        SentPage sentPage = draftsPage.waitLoadPage().switchToSentPage();
+        SentEmailPage sentEmailPage = sentPage.waitLoadPage().openFirstMailForEdit();
+        assertEquals(sentEmailPage.waitLoadPage().getSubjectOfSentEmail(), subject,
                 "The subject is not displayed or wrong");
     }
 
