@@ -4,23 +4,30 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.selenium.auxiliary.Waits;
 
-public class SentEmailPage extends MailPage {
+public class NonEditableEmailPage extends MailPage {
     @FindBy (css = ".thread__letter")
     private WebElement treadLetter;
     @FindBy (className = "thread-subject")
     private WebElement subjectField;
+    @FindBy (css = "svg.ico.ico_16-navigation\\:arrow_previous")
+    private  WebElement returnButton;
 
-    public SentEmailPage(WebDriver driver) {
+    public NonEditableEmailPage(WebDriver driver) {
         super(driver);
     }
-    public SentEmailPage waitLoadPage() {
+    public NonEditableEmailPage waitLoadPage() {
         new Waits(driver).waitForVisibilityOf(treadLetter);
         return this;
     }
 
-    public String getSubjectOfSentEmail() {
+    public String getSubjectOfNonEditableEmail() {
         new Waits(driver).waitForVisibilityOf(subjectField);
         return subjectField.getText();
     }
 
+    public InboxPage retutnToInboxPage() {
+        new Waits(driver).waitForElementToBeClickable(returnButton);
+        returnButton.click();
+        return new InboxPage(driver);
+    }
 }

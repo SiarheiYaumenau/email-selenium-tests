@@ -1,4 +1,5 @@
 package org.selenium.pages;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -19,8 +20,6 @@ public class MessageEditorPage extends MailPage {
     private WebElement subjectField;
     @FindBy (xpath = "//div[@role='textbox']")
     private WebElement bodyField;
-    @FindBy (css = "span.notify__message span.notify__message__text")
-    private WebElement notificationSavedMessage;
 
     public MessageEditorPage(WebDriver driver) {
         super(driver);
@@ -32,7 +31,8 @@ public class MessageEditorPage extends MailPage {
 
     public MessageEditorPage fillAddressee(String recipients) {
         new Waits(driver).waitForVisibilityOf(emptyRecipientsField);
-        emptyRecipientsField.sendKeys(recipients);
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("arguments[0].value = arguments[1];", emptyRecipientsField, recipients);
         return this;
     }
     public MessageEditorPage fillSubject(String subject) {

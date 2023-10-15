@@ -1,18 +1,23 @@
 package org.selenium.test;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.selenium.auxiliary.WebDriverSeleniumGrid;
 import org.selenium.pages.DraftsPage;
 import org.selenium.pages.EnterPasswordPage;
 import org.selenium.pages.InboxPage;
 import org.selenium.pages.MessageEditorPage;
+import org.selenium.pages.NewsLettersPage;
+import org.selenium.pages.NonEditableEmailPage;
 import org.selenium.pages.SentEmailAlertPage;
-import org.selenium.pages.SentEmailPage;
 import org.selenium.pages.SentPage;
 import org.selenium.pages.StartPage;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
+
 import static org.testng.Assert.assertEquals;
 
 public class MailServiceTests {
@@ -22,14 +27,31 @@ public class MailServiceTests {
     private String subject;
     private String body;
     private WebDriver driver;
+    private final String chromeWebDriver = "chrome";
+    private final String firefoxWebDriver = "firefox";
+    private final String edgeWebDriver = "MicrosoftEdge";
     @BeforeMethod (alwaysRun = true)
     public void browserSetup() {
         driver = new FirefoxDriver();
+//        setRandomWebDriverWithSeleniumGrid();
+//        setWebDriverWithSeleniumGrid(firefoxWebDriver);
         driver.manage().window().maximize();
         recipient = "selenium.test@internet.ru";
     }
 
-    @Test (description = "Login to Mail")
+    private void setRandomWebDriverWithSeleniumGrid() {
+        WebDriverSeleniumGrid gridSetup  = new WebDriverSeleniumGrid();
+        gridSetup.setRandomWebDriverSeleniumGrid();
+        driver = gridSetup.getDriver();
+    }
+
+    private void setWebDriverWithSeleniumGrid(String browser) {
+        WebDriverSeleniumGrid gridSetup  = new WebDriverSeleniumGrid();
+        gridSetup.setWebDriverSeleniumGrid(browser);
+        driver = gridSetup.getDriver();
+    }
+
+    @Test (priority = 1, description = "Login to Mail")
     public void MailLoginTest() {
         InboxPage inboxPage = getInboxMailPage();
         String accountName = inboxPage
@@ -40,7 +62,7 @@ public class MailServiceTests {
                 "Inbox page is not displayed or the account name is wrong");
     }
 
-    @Test (description = "Save the email as a draft")
+    @Test (priority = 2, description = "Save the email as a draft")
     public void SaveMailTest() {
         InboxPage inboxPage = getInboxMailPage();
         inboxPage = createAndSaveDraftOfSimpleEmail(inboxPage);
@@ -52,7 +74,7 @@ public class MailServiceTests {
         validateRecipientSubjectAndBodyOfDraft(messageEditorPage);
     }
 
-    @Test (description = "Send the email")
+    @Test (priority = 3, description = "Send the email")
     public void SendMailTest() {
         InboxPage inboxPage = getInboxMailPage();
         DraftsPage draftsPage = inboxPage.waitLoadPage().switchToDraftsPage();
@@ -61,6 +83,32 @@ public class MailServiceTests {
                 .openFirstMailForEdit();
         validateSentEmailIsDisappearedInDraftPage(messageEditorPage);
         validateEmailIsSent(messageEditorPage);
+    }
+
+    @Test (priority = 4, description = "Drag-n-drop email from Inbox to News letters")
+    public void MoveEmailFromInboxToNewsLetters() {
+        InboxPage inboxPage = getInboxMailPage();
+        getSubjectOfTheFirstEmailFromInbox(inboxPage);
+        NonEditableEmailPage nonEditableEmailPage = inboxPage.moveTheFirstEmailToNewsLetters()
+                .switchToNewsLettersPage().waitLoadPage()
+                .openFirstNotEditableEmail();
+        assertEquals(nonEditableEmailPage.waitLoadPage().getSubjectOfNonEditableEmail(), subject,
+                "The subject is equal");
+    }
+
+    @Test (priority = 5, description = "Move email from News letters to Inbox with email pop-up menu")
+    public void MoveEmailFromNewsLettersToInboxWithPopupMenu() {
+        InboxPage inboxPage = getInboxMailPage();
+        NewsLettersPage newsLettersPage = inboxPage.waitLoadPage().switchToNewsLettersPage().waitLoadPage();
+        getSubjectOfTheFirstEmailFromNewsLettersPage(newsLettersPage);
+        NonEditableEmailPage nonEditableEmailPage = newsLettersPage
+                .openEmailPopupMenu().waitLoadPage()
+                .openSecondLevelMenuMoveTo().waitLoadPage()
+                .moveEmailToInbox().waitLoadPage()
+                .switchToInboxPage().waitLoadPage()
+                .openFirstNonEditableEmail();
+        assertEquals(nonEditableEmailPage.waitLoadPage().getSubjectOfNonEditableEmail(), subject,
+                "The subject is equal");
     }
 
     @AfterMethod (alwaysRun = true)
@@ -82,8 +130,7 @@ public class MailServiceTests {
         MessageEditorPage messageEditorPage = inboxPage.waitLoadPage()
                 .createNewMessage();
         messageEditorPage.waitLoadPage().fillAddressee(recipient).fillSubject(subject).fillBody(body).saveDraft();
-        inboxPage = messageEditorPage.closeMessageEditorPageAndSwitchToInboxPage();
-        return inboxPage;
+        return messageEditorPage.closeMessageEditorPageAndSwitchToInboxPage();
     }
 
     private DraftsPage sendTheFirstEmailFromDrafts(DraftsPage draftsPage) {
@@ -91,8 +138,18 @@ public class MailServiceTests {
         subject = messageEditorPage.getSubjectOfDraft();
         body = messageEditorPage.getBodyTextOfDraft();
         SentEmailAlertPage sentEmailAlertPage = messageEditorPage.sendEmail();
-        draftsPage = sentEmailAlertPage.waitLoadPage().closeSentEmailAlertPage();
-        return draftsPage;
+        return sentEmailAlertPage.waitLoadPage().closeSentEmailAlertPage();
+    }
+
+    private void getSubjectOfTheFirstEmailFromInbox(InboxPage inboxPage) {
+        NonEditableEmailPage nonEditableEmailPage = inboxPage.waitLoadPage().openFirstNonEditableEmail();
+        subject = nonEditableEmailPage.getSubjectOfNonEditableEmail();
+        nonEditableEmailPage.retutnToInboxPage();
+    }
+    private void getSubjectOfTheFirstEmailFromNewsLettersPage(NewsLettersPage newsLettersPage) {
+        NonEditableEmailPage nonEditableEmailPage = newsLettersPage.waitLoadPage().openFirstNotEditableEmail();
+        subject = nonEditableEmailPage.getSubjectOfNonEditableEmail();
+        nonEditableEmailPage.retutnToInboxPage();
     }
 
     private void validateRecipientSubjectAndBodyOfDraft(MessageEditorPage messageEditorPage) {
@@ -118,8 +175,8 @@ public class MailServiceTests {
     private void validateEmailIsSent(MessageEditorPage messageEditorPage) {
         DraftsPage draftsPage = messageEditorPage.closeMessageEditorPageAndSwitchToDraftsPage();
         SentPage sentPage = draftsPage.waitLoadPage().switchToSentPage();
-        SentEmailPage sentEmailPage = sentPage.waitLoadPage().openFirstMailForEdit();
-        assertEquals(sentEmailPage.waitLoadPage().getSubjectOfSentEmail(), subject,
+        NonEditableEmailPage nonEditableEmailPage = sentPage.waitLoadPage().openFirstNonEditableEmail();
+        assertEquals(nonEditableEmailPage.waitLoadPage().getSubjectOfNonEditableEmail(), subject,
                 "The subject is not displayed or wrong");
     }
 

@@ -20,10 +20,9 @@ public class SentPage extends MailPage {
         return this;
     }
 
-    public SentEmailPage openFirstMailForEdit() {
+    public NonEditableEmailPage openFirstNonEditableEmail() {
         new Waits(driver).waitForElementToBeClickable(topMailsRow);
         topMailsRow.click();
-        return new SentEmailPage(driver);
+        return new NonEditableEmailPage(driver);
     }
-
 }
