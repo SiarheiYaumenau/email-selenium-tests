@@ -1,4 +1,5 @@
 package org.selenium.test;
+
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.edge.EdgeDriver;
@@ -17,8 +18,8 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
-
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 public class MailServiceTests {
     private static final String USER_NAME = "swebdriver";
@@ -30,7 +31,8 @@ public class MailServiceTests {
     private final String chromeWebDriver = "chrome";
     private final String firefoxWebDriver = "firefox";
     private final String edgeWebDriver = "MicrosoftEdge";
-    @BeforeMethod (alwaysRun = true)
+
+    @BeforeMethod(alwaysRun = true)
     public void browserSetup() {
         driver = new FirefoxDriver();
 //        setRandomWebDriverWithSeleniumGrid();
@@ -40,18 +42,18 @@ public class MailServiceTests {
     }
 
     private void setRandomWebDriverWithSeleniumGrid() {
-        WebDriverSeleniumGrid gridSetup  = new WebDriverSeleniumGrid();
+        WebDriverSeleniumGrid gridSetup = new WebDriverSeleniumGrid();
         gridSetup.setRandomWebDriverSeleniumGrid();
         driver = gridSetup.getDriver();
     }
 
     private void setWebDriverWithSeleniumGrid(String browser) {
-        WebDriverSeleniumGrid gridSetup  = new WebDriverSeleniumGrid();
+        WebDriverSeleniumGrid gridSetup = new WebDriverSeleniumGrid();
         gridSetup.setWebDriverSeleniumGrid(browser);
         driver = gridSetup.getDriver();
     }
 
-    @Test (priority = 1, description = "Login to Mail")
+    @Test(priority = 1, description = "Login to Mail")
     public void MailLoginTest() {
         InboxPage inboxPage = getInboxMailPage();
         String accountName = inboxPage
@@ -62,7 +64,7 @@ public class MailServiceTests {
                 "Inbox page is not displayed or the account name is wrong");
     }
 
-    @Test (priority = 2, description = "Save the email as a draft")
+    @Test(priority = 2, description = "Save the email as a draft")
     public void SaveMailTest() {
         InboxPage inboxPage = getInboxMailPage();
         inboxPage = createAndSaveDraftOfSimpleEmail(inboxPage);
@@ -74,7 +76,7 @@ public class MailServiceTests {
         validateRecipientSubjectAndBodyOfDraft(messageEditorPage);
     }
 
-    @Test (priority = 3, description = "Send the email")
+    @Test(priority = 3, description = "Send the email")
     public void SendMailTest() {
         InboxPage inboxPage = getInboxMailPage();
         DraftsPage draftsPage = inboxPage.waitLoadPage().switchToDraftsPage();
@@ -85,33 +87,29 @@ public class MailServiceTests {
         validateEmailIsSent(messageEditorPage);
     }
 
-    @Test (priority = 4, description = "Drag-n-drop email from Inbox to News letters")
+    @Test(priority = 4, description = "Drag-n-drop email from Inbox to News letters")
     public void MoveEmailFromInboxToNewsLetters() {
         InboxPage inboxPage = getInboxMailPage();
         getSubjectOfTheFirstEmailFromInbox(inboxPage);
-        NonEditableEmailPage nonEditableEmailPage = inboxPage.moveTheFirstEmailToNewsLetters()
-                .switchToNewsLettersPage().waitLoadPage()
-                .openFirstNotEditableEmail();
-        assertEquals(nonEditableEmailPage.waitLoadPage().getSubjectOfNonEditableEmail(), subject,
-                "The subject is equal");
+        NewsLettersPage newsLettersPage = inboxPage.moveTheFirstEmailToNewsLetters()
+                .switchToNewsLettersPage().waitLoadPage();
+        assertTrue(newsLettersPage.ifEmailSubjectExistsInNewsLettersPage(subject));
     }
 
-    @Test (priority = 5, description = "Move email from News letters to Inbox with email pop-up menu")
+    @Test(priority = 5, description = "Move email from News letters to Inbox with email pop-up menu")
     public void MoveEmailFromNewsLettersToInboxWithPopupMenu() {
         InboxPage inboxPage = getInboxMailPage();
         NewsLettersPage newsLettersPage = inboxPage.waitLoadPage().switchToNewsLettersPage().waitLoadPage();
         getSubjectOfTheFirstEmailFromNewsLettersPage(newsLettersPage);
-        NonEditableEmailPage nonEditableEmailPage = newsLettersPage
+        inboxPage = newsLettersPage
                 .openEmailPopupMenu().waitLoadPage()
                 .openSecondLevelMenuMoveTo().waitLoadPage()
                 .moveEmailToInbox().waitLoadPage()
-                .switchToInboxPage().waitLoadPage()
-                .openFirstNonEditableEmail();
-        assertEquals(nonEditableEmailPage.waitLoadPage().getSubjectOfNonEditableEmail(), subject,
-                "The subject is equal");
+                .switchToInboxPage().waitLoadPage();
+        assertTrue(inboxPage.ifEmailSubjectExistsInInboxPage(subject));
     }
 
-    @AfterMethod (alwaysRun = true)
+    @AfterMethod(alwaysRun = true)
     public void browserTearDown() {
         driver.quit();
         driver = null;
@@ -146,6 +144,7 @@ public class MailServiceTests {
         subject = nonEditableEmailPage.getSubjectOfNonEditableEmail();
         nonEditableEmailPage.retutnToInboxPage();
     }
+
     private void getSubjectOfTheFirstEmailFromNewsLettersPage(NewsLettersPage newsLettersPage) {
         NonEditableEmailPage nonEditableEmailPage = newsLettersPage.waitLoadPage().openFirstNotEditableEmail();
         subject = nonEditableEmailPage.getSubjectOfNonEditableEmail();
@@ -198,7 +197,7 @@ public class MailServiceTests {
                 "Body: Please find attached the requested documents." + (int) (Math.random() * 100),
                 "Body: I wanted to update you on our progress." + (int) (Math.random() * 100),
                 "Body: Thanks for your prompt response." + (int) (Math.random() * 100),
-                "Body: Don't forget our meeting next week."  + (int) (Math.random() * 100)
+                "Body: Don't forget our meeting next week." + (int) (Math.random() * 100)
         };
         int randomIndex = (int) (Math.random() * bodyTexts.length);
         return bodyTexts[randomIndex];

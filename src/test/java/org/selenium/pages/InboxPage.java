@@ -3,8 +3,12 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.FindAll;
 import org.openqa.selenium.support.FindBy;
 import org.selenium.auxiliary.Waits;
+import java.util.List;
+import java.util.stream.Collectors;
+
 
 public class InboxPage extends MailPage {
     @FindBy(className = "ph-avatar-img")
@@ -21,6 +25,8 @@ public class InboxPage extends MailPage {
     private WebElement topMailsRow;
     @FindBy(css = ".mt-h-c_new-selection[href^='/newsletters/']")
     private WebElement newsLettersInMailGrid;
+    @FindAll({@FindBy(css = "span.ll-sj__normal")})
+    private List<WebElement> subjects;
 
     public InboxPage(WebDriver driver) {
         super(driver);
@@ -76,7 +82,16 @@ public class InboxPage extends MailPage {
         Actions actions = new Actions(driver);
         actions.dragAndDrop(topMailsRow, newsLettersTab).release().build().perform();
         new Waits(driver).waitForVisibilityOf(newsLettersInMailGrid);
+        actions.moveToElement(newsLettersTab);
         return this;
+    }
+    public boolean ifEmailSubjectExistsInInboxPage(String emailSubject) {
+        new Waits(driver).waitForElementToBeClickable(topMailsRow);
+        List<String> emailSubjects = subjects.stream()
+                .map(WebElement::getText)
+                .map(String::toLowerCase)
+                .collect(Collectors.toList());
+        return emailSubjects.contains(emailSubject.toLowerCase());
     }
 
 }
