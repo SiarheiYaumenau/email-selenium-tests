@@ -2,7 +2,7 @@ package org.selenium.pages;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
-import org.selenium.auxiliary.Waits;
+import org.selenium.util.Waits;
 
 public class DraftsPage extends MailPage {
     @FindBy (css = "a.nav__item[href^='/inbox/']")

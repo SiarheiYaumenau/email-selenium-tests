@@ -1,18 +1,13 @@
 package org.selenium.test;
 
 import org.openqa.selenium.WebDriver;
-import org.selenium.auxiliary.WebDriverSeleniumGrid;
+import org.selenium.util.WebDriverSeleniumGrid;
 import org.selenium.driver.DriverSingleton;
-import org.selenium.pages.EnterPasswordPage;
-import org.selenium.pages.InboxPage;
-import org.selenium.pages.StartPage;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
 public class CommonConditions {
-    private WebDriver driver;
-    protected static final String USER_NAME = "swebdriver";
-    private static final String PASSWORD = "Support-1234";
+    protected WebDriver driver;
 
     @BeforeMethod(alwaysRun = true)
     public void browserSetup() {
@@ -36,10 +31,4 @@ public class CommonConditions {
         DriverSingleton.closeDriver();
     }
 
-    public InboxPage getInboxMailPage() {
-        EnterPasswordPage enterPasswordPage = new StartPage(driver)
-                .waitLoadPage().LoginAndConfirm(USER_NAME);
-        enterPasswordPage.waitLoadPage();
-        return enterPasswordPage.inputPasswordAndConfirm(PASSWORD);
-    }
 }

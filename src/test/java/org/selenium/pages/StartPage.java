@@ -2,7 +2,9 @@ package org.selenium.pages;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
-import org.selenium.auxiliary.Waits;
+import org.selenium.util.Waits;
+import org.selenium.model.User;
+import org.selenium.service.UserCreator;
 
 public class StartPage extends MailPage {
     private static final String STARTAPP_URL = "https://e.mail.ru/";
@@ -27,4 +29,5 @@ public class StartPage extends MailPage {
         submitButton.click();
         return new EnterPasswordPage(driver);
     }
+
 }

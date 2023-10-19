@@ -3,7 +3,7 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
-import org.selenium.auxiliary.Waits;
+import org.selenium.util.Waits;
 
 public class MessageEditorPage extends MailPage {
     @FindBy (css = "button[type='button'][data-test-id='save']")

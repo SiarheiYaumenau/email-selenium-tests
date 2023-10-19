@@ -3,7 +3,7 @@ package org.selenium.pages;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
-import org.selenium.auxiliary.Waits;
+import org.selenium.util.Waits;
 
 public class EmailPopupMenu extends MailPage {
     @FindBy (css = "svg.ico.ico_16-delete.ico_size_s")
