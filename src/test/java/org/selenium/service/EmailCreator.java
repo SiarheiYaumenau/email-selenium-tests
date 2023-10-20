@@ -3,14 +3,12 @@ package org.selenium.service;
 import org.selenium.model.Email;
 
 public class EmailCreator {
-    private static final String RECIPIENT = "selenium.test@internet.ru";
-    private static String subject;
-    private static String body;
+    private static final String TESTDATA_EMAIL_RECIPIENT = "testdata.email.recipient";
 
     public static Email withRecipientFromPropertyAndGeneratedSubjectAndBody() {
-        subject = generateSubjectText();
-        body = generateBodyText();
-        return new Email(RECIPIENT, subject, body);
+        String subject = generateSubjectText();
+        String body = generateBodyText();
+        return new Email(TestDataReader.getTestData(TESTDATA_EMAIL_RECIPIENT), subject, body);
     }
 
     private static String generateSubjectText() {

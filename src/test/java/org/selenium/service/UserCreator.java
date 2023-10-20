@@ -4,12 +4,12 @@ import org.selenium.model.User;
 
 public class UserCreator {
 
-    public static final String USER_NAME = "swebdriver";
-    public static final String USER_PASSWORD = "Support-1234";
+    public static final String TESTDATA_USER_NAME = "testdata.user.name";
+    public static final String TESTDATA_USER_PASSWORD = "testdata.user.password";
 
     public static User withCredentialsFromProperty(){
-        return new User(USER_NAME,
-                USER_PASSWORD);
+        return new User(TestDataReader.getTestData(TESTDATA_USER_NAME),
+                TestDataReader.getTestData(TESTDATA_USER_PASSWORD));
     }
 
 }
