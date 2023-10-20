@@ -15,7 +15,6 @@ import org.selenium.util.InboxPageUtils;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 public class MailServiceTests extends CommonConditions {
     @Test(priority = 1, description = "Save the email as a draft")
@@ -53,7 +52,7 @@ public class MailServiceTests extends CommonConditions {
         getSubjectOfTheFirstEmailFromInbox(inboxPage, receivedEmail);
         NewsLettersPage newsLettersPage = inboxPage.moveTheFirstEmailToNewsLetters()
                 .switchToNewsLettersPage().waitLoadPage();
-        assertTrue(newsLettersPage.ifEmailSubjectExistsInNewsLettersPage(receivedEmail.getSubject()));
+        new SoftAssert().assertTrue(newsLettersPage.ifEmailSubjectExistsInNewsLettersPage(receivedEmail.getSubject()));
     }
 
     @Test(priority = 4, description = "Move email from News letters to Inbox with email pop-up menu")
@@ -68,7 +67,7 @@ public class MailServiceTests extends CommonConditions {
                 .openSecondLevelMenuMoveTo().waitLoadPage()
                 .moveEmailToInbox().waitLoadPage()
                 .switchToInboxPage().waitLoadPage();
-        assertTrue(inboxPage.ifEmailSubjectExistsInInboxPage(newsLetter.getSubject()));
+        new SoftAssert().assertTrue(inboxPage.ifEmailSubjectExistsInInboxPage(newsLetter.getSubject()));
     }
 
     private InboxPage createAndSaveDraftOfSimpleEmail(InboxPage inboxPage, Email email) {

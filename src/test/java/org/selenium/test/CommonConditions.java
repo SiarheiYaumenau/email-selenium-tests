@@ -1,11 +1,13 @@
 package org.selenium.test;
-
 import org.openqa.selenium.WebDriver;
+import org.selenium.util.TestListener;
 import org.selenium.util.WebDriverSeleniumGrid;
 import org.selenium.driver.DriverSingleton;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Listeners;
 
+@Listeners({TestListener.class})
 public class CommonConditions {
     protected WebDriver driver;
 
