@@ -1,7 +1,7 @@
 package org.selenium.test;
 
-import org.selenium.model.Email;
-import org.selenium.model.User;
+import org.selenium.model.email.Email;
+import org.selenium.model.user.User;
 import org.selenium.pages.DraftsPage;
 import org.selenium.pages.InboxPage;
 import org.selenium.pages.MessageEditorPage;
@@ -9,8 +9,8 @@ import org.selenium.pages.NewsLettersPage;
 import org.selenium.pages.NonEditableEmailPage;
 import org.selenium.pages.SentEmailAlertPage;
 import org.selenium.pages.SentPage;
-import org.selenium.service.EmailCreator;
-import org.selenium.service.UserCreator;
+import org.selenium.model.email.EmailCreator;
+import org.selenium.model.user.UserCreator;
 import org.selenium.util.InboxPageUtils;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;

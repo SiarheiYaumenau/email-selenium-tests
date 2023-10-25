@@ -1,4 +1,4 @@
-package org.selenium.service;
+package org.selenium.util;
 
 import java.util.ResourceBundle;
 

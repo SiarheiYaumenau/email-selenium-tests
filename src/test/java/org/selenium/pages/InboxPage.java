@@ -8,6 +8,8 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.FindAll;
 import org.openqa.selenium.support.FindBy;
 import org.selenium.util.Waits;
+import org.testng.TestException;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -96,7 +98,7 @@ public class InboxPage extends MailPage {
         try {
         actions.dragAndDrop(topMailsRow, newsLettersTab).release().build().perform();
         } catch (Exception e) {
-            logger.error("Error occurred while drag and drop the first email from Inbox page to Newsletters tab: " + e.getMessage());
+            throw new TestException("An unexpected error occurred during drag and drop: " + e.getMessage());
         }
         new Waits(driver).waitForVisibilityOf(newsLettersInMailGrid);
         actions.moveToElement(newsLettersTab).build().perform();
@@ -109,11 +111,8 @@ public class InboxPage extends MailPage {
                 .map(String::toLowerCase)
                 .collect(Collectors.toList());
         boolean exists = emailSubjects.contains(emailSubject.toLowerCase());
-        if (exists) {
-            logger.info("Email subject '" + emailSubject + "' exists in Inbox.");
-        } else {
-            logger.info("Email subject '" + emailSubject + "' does not exist in Inbox.");
-        }
+        logger.info(exists ? "Email subject '" + emailSubject + "' exists in Inbox."
+                : "Email subject '" + emailSubject + "' does not exist in Inbox.");
         return exists;
     }
 }

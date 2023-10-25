@@ -1,6 +1,6 @@
-package org.selenium.service;
+package org.selenium.model.email;
 
-import org.selenium.model.Email;
+import org.selenium.util.TestDataReader;
 
 public class EmailCreator {
     private static final String TESTDATA_EMAIL_RECIPIENT = "testdata.email.recipient";

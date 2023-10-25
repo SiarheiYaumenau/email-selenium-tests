@@ -56,11 +56,8 @@ public class NewsLettersPage extends MailPage {
                 .map(String::toLowerCase)
                 .collect(Collectors.toList());
         boolean exists = emailSubjects.contains(emailSubject.toLowerCase());
-        if (exists) {
-            logger.info("Email subject '" + emailSubject + "' exists in Newsletters page.");
-        } else {
-            logger.info("Email subject '" + emailSubject + "' does not exist in Newsletters page.");
-        }
+        logger.info(exists ? "Email subject '" + emailSubject + "' exists in Newsletters page."
+                : "Email subject '" + emailSubject + "' does not exist in Newsletters page.");
         return exists;
     }
 }

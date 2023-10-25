@@ -1,7 +1,7 @@
 package org.selenium.util;
 
 import org.openqa.selenium.WebDriver;
-import org.selenium.model.User;
+import org.selenium.model.user.User;
 import org.selenium.pages.EnterPasswordPage;
 import org.selenium.pages.InboxPage;
 import org.selenium.pages.StartPage;

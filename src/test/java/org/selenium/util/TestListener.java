@@ -9,6 +9,7 @@ import org.selenium.driver.DriverSingleton;
 import org.testng.ITestContext;
 import org.testng.ITestListener;
 import org.testng.ITestResult;
+import org.testng.TestException;
 
 import java.io.File;
 import java.io.IOException;
@@ -56,7 +57,7 @@ public class TestListener implements ITestListener {
             log.info("Screenshot of failed test is saved in .//target/screenshots/ and named " +
                     new File(fileName).getName());
         } catch (IOException e) {
-            log.error("Failed to save screenshot: " + e.getLocalizedMessage());
+            throw new TestException("An unexpected error occurred during saving screenshot: " + e.getMessage());
         }
     }
 

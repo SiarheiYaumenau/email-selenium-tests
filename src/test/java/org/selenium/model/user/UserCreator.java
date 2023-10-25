@@ -1,6 +1,6 @@
-package org.selenium.service;
+package org.selenium.model.user;
 
-import org.selenium.model.User;
+import org.selenium.util.TestDataReader;
 
 public class UserCreator {
 

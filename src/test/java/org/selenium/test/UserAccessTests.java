@@ -1,8 +1,8 @@
 package org.selenium.test;
 
-import org.selenium.model.User;
+import org.selenium.model.user.User;
 import org.selenium.pages.*;
-import org.selenium.service.UserCreator;
+import org.selenium.model.user.UserCreator;
 import org.selenium.util.InboxPageUtils;
 import org.testng.annotations.Test;
 

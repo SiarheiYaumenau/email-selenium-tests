@@ -6,16 +6,26 @@
                 <Pattern>%d %p %c{2} [%t] %l %m%n</Pattern>
             </PatternLayout>
         </Console>
-        <File name="File" fileName="target/logs/mail-automation.log">
+        <RollingFile name="RollingFile" fileName="target/logs/mail-automation.log"
+                     filePattern="target/logs/mail-automation-%d{yyyy-MM-dd}.log">
             <PatternLayout>
                 <Pattern>%d %p %c{2} [%t] %m%n</Pattern>
             </PatternLayout>
-        </File>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+            </Policies>
+            <DefaultRolloverStrategy>
+                <Delete basePath="target/logs" maxDepth="1">
+                    <IfFileName glob="target/logs/mail-automation-*.log" />
+                    <IfLastModified age="7d" />
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
     </Appenders>
     <Loggers>
         <Root level="trace">
             <AppenderRef ref="Console"/>
-            <AppenderRef ref="File"/>
+            <AppenderRef ref="RollingFile"/>
         </Root>
     </Loggers>
 </Configuration>
