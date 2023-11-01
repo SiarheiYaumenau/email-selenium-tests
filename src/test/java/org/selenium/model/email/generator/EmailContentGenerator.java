@@ -1,4 +1,4 @@
-package org.selenium.model.email;
+package org.selenium.model.email.generator;
 
 
 public class EmailContentGenerator {
