@@ -18,7 +18,8 @@ public class MailServiceTests extends CommonConditions {
     public void SaveMailTest() {
         User user = UserCreator.withCredentialsFromProperty();
         InboxPage inboxPage = InboxPageUtils.loginAndNavigateToInbox(driver, user);
-        Email email = EmailCreator.withSignatureInBody("The best regards, John");
+        Email baseEmail = EmailCreator.withRecipientFromPropertyAndGeneratedSubjectAndBody();
+        Email email = EmailCreator.withSignatureInBody(baseEmail, "The best regards, John");
         new InboxPageActions(inboxPage).createAndSaveDraftOfSimpleEmail(email);
         MessageEditorPage messageEditorPage = inboxPage
                 .waitLoadPage()
