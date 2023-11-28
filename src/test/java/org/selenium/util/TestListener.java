@@ -1,5 +1,8 @@
 package org.selenium.util;
 
+import com.epam.reportportal.message.ReportPortalMessage;
+import com.epam.reportportal.service.ReportPortal;
+import com.epam.reportportal.listeners.LogLevel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.commons.io.FileUtils;
@@ -15,9 +18,10 @@ import java.io.File;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 public class TestListener implements ITestListener {
-    private final Logger log = LogManager.getRootLogger();
+    private final Logger log = LogManager.getLogger(TestListener.class);
 
     public void onTestStart(ITestResult iTestResult) {
 
@@ -59,6 +63,14 @@ public class TestListener implements ITestListener {
         } catch (IOException e) {
             throw new TestException("An unexpected error occurred during saving screenshot: " + e.getMessage());
         }
+        ReportPortal.emitLog("screenshot", LogLevel.INFO.name(), new Date(), new File(fileName));
+        ReportPortalMessage message;
+        try {
+            message = new ReportPortalMessage(new File(fileName), "screenshot2");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        log.info(message);
     }
 
     private String getCurrentTimeAsString(){

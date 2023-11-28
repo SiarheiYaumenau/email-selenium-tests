@@ -1,31 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration>
-    <Appenders>
-        <Console name="Console">
-            <PatternLayout>
-                <Pattern>%d %p %c{2} [%t] %l %m%n</Pattern>
-            </PatternLayout>
-        </Console>
-        <RollingFile name="RollingFile" fileName="target/logs/mail-automation.log"
-                     filePattern="target/logs/mail-automation-%d{yyyy-MM-dd}.log">
-            <PatternLayout>
-                <Pattern>%d %p %c{2} [%t] %m%n</Pattern>
-            </PatternLayout>
-            <Policies>
-                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
-            </Policies>
-            <DefaultRolloverStrategy>
-                <Delete basePath="target/logs" maxDepth="1">
-                    <IfFileName glob="target/logs/mail-automation-*.log" />
-                    <IfLastModified age="7d" />
-                </Delete>
-            </DefaultRolloverStrategy>
-        </RollingFile>
-    </Appenders>
-    <Loggers>
-        <Root level="trace">
-            <AppenderRef ref="Console"/>
-            <AppenderRef ref="RollingFile"/>
-        </Root>
-    </Loggers>
-</Configuration>
+<configuration>
+<properties>
+    <property name="pattern">[%d{HH:mm:ss}] %-5p (%F:%L) - %m%n</property>
+</properties>
+<appenders>
+    <ReportPortalLog4j2Appender name="ReportPortalAppender">
+        <PatternLayout pattern="${pattern}"/>
+    </ReportPortalLog4j2Appender>
+</appenders>
+<loggers>
+    <root level="all">
+        <appender-ref ref="ReportPortalAppender"/>
+    </root>
+</loggers>
+</configuration>
+
